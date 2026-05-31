@@ -45,3 +45,15 @@ app.http('upsertStudent', {
     return jsonResponse(200, saved);
   },
 });
+
+app.http('deleteStudent', {
+  methods: ['DELETE'],
+  authLevel: 'anonymous',
+  route: 'students/{id}',
+  handler: async (request) => {
+    const id = request.params.id;
+    const success = await deleteEntity(STUDENTS_TABLE, PARTITION, id);
+    if (!success) return jsonResponse(404, { error: 'Student not found' });
+    return jsonResponse(204, null);
+  },
+});

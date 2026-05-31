@@ -76,7 +76,7 @@ async function initMatchesPage() {
 
   const allTargetProfiles = await loadProfiles(targetStorageKey);
   const matches = allTargetProfiles.filter(target => 
-    target.topics.some(topic => myProfile.topics.includes(topic))
+    !target.disabled && target.topics.some(topic => myProfile.topics.includes(topic))
   );
 
   if (matches.length === 0) {

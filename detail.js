@@ -233,6 +233,12 @@ async function initPage() {
     return;
   }
 
+  const user = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+  if (profile.disabled && (!user || user.id !== profile.ownerId)) {
+    showError('This profile is currently private or disabled by the owner.');
+    return;
+  }
+
   renderDetail(profile, type);
   await renderMatches(profile, type);
 }

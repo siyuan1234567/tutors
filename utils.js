@@ -45,6 +45,19 @@ async function upsertProfile(key, profile) {
   });
 }
 
+async function deleteProfile(key, id) {
+  const route = key === STORAGE_TUTORS ? 'tutors' : 'students';
+  return apiFetch(`/${route}/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+}
+
+async function deleteUser(role, email) {
+  return apiFetch(`/auth/users/${encodeURIComponent(role)}/${encodeURIComponent(email)}`, {
+    method: 'DELETE',
+  });
+}
+
 function getCurrentUser() {
   const raw = sessionStorage.getItem(CURRENT_USER_KEY);
   return raw ? JSON.parse(raw) : null;

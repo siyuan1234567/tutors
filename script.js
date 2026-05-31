@@ -37,7 +37,7 @@ function handleLogout() {
 }
 
 async function renderTutorTable() {
-  const tutors = await loadProfiles(STORAGE_TUTORS);
+  const tutors = (await loadProfiles(STORAGE_TUTORS)).filter(p => !p.disabled);
   tutorTableBody.innerHTML = '';
 
   if (!tutors.length) {

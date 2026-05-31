@@ -12,6 +12,9 @@ const profileTutorBioInput = document.getElementById('profileTutorBio');
 const profilePhotoInput = document.getElementById('profilePhoto');
 const profileTutorFields = document.getElementById('profileTutorFields');
 const profileStudentFields = document.getElementById('profileStudentFields');
+const disableAccountButton = document.getElementById('disableAccountButton');
+const enableAccountButton = document.getElementById('enableAccountButton');
+const deleteAccountButton = document.getElementById('deleteAccountButton');
 
 async function initProfilePage() {
   const user = getCurrentUser();
@@ -27,7 +30,73 @@ async function initProfilePage() {
   showProfileFields(user.role);
   const profile = await getProfileByOwnerId(user.role, user.id);
   populateProfileForm(user.role, profile);
+
+  if (profile && profile.disabled) {
+    disableAccountButton.classList.add('hidden');
+    enableAccountButton.classList.remove('hidden');
+  } else {
+    disableAccountButton.classList.remove('hidden');
+    enableAccountButton.classList.add('hidden');
+  }
 }
+
+async function handleSetDisabled(disabled) {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const profile = await getProfileByOwnerId(user.role, user.id);
+  if (!profile) return;
+
+  profile.disabled = disabled;
+  profile.updatedAt = new Date().toISOString();
+
+  const key = user.role === 'tutor' ? STORAGE_TUTORS : STORAGE_STUDENTS;
+  try {
+    await upsertProfile(key, profile);
+    profileMessage.textContent = disabled ? 'Account disabled successfully.' : 'Account re-enabled successfully.';
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 1200);
+  } catch (err) {
+    console.error('Failed to update account state:', err);
+    profileMessage.textContent = 'Failed to update account state.';
+  }
+}
+
+disableAccountButton.addEventListener('click', () => {
+  if (confirm('Are you sure you want to disable your account? It will no longer show up in search results, but you can re-enable it anytime.')) {
+    handleSetDisabled(true);
+  }
+});
+
+enableAccountButton.addEventListener('click', () => {
+  handleSetDisabled(false);
+});
+
+deleteAccountButton.addEventListener('click', async () => {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  if (confirm('PERMANENT ACTION: Are you sure you want to delete your account? This cannot be undone.')) {
+    try {
+      const profile = await getProfileByOwnerId(user.role, user.id);
+      if (profile) {
+        const key = user.role === 'tutor' ? STORAGE_TUTORS : STORAGE_STUDENTS;
+        await deleteProfile(key, profile.id);
+      }
+      await deleteUser(user.role, user.email);
+      
+      profileMessage.textContent = 'Account deleted successfully. Logging out...';
+      setTimeout(() => {
+        clearCurrentUser();
+        window.location.href = 'index.html';
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to delete account:', err);
+      profileMessage.textContent = 'Failed to delete account. Please contact support.';
+    }
+  }
+});
 
 function showProfileFields(role) {
   const showTutor = role === 'tutor';

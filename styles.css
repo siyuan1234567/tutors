@@ -326,6 +326,22 @@ button.secondary {
   border: 1px solid #e5e7eb;
 }
 
+button.danger {
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+button.danger:hover {
+  background: #fef2f2;
+}
+
+.account-danger-zone {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+  justify-content: center;
+}
+
 .profile-grid {
   display: grid;
   gap: 20px;

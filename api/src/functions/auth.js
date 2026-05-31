@@ -107,3 +107,16 @@ app.http('updateUserName', {
     return jsonResponse(200, publicUser(user));
   },
 });
+
+app.http('deleteUser', {
+  methods: ['DELETE'],
+  authLevel: 'anonymous',
+  route: 'auth/users/{role}/{email}',
+  handler: async (request) => {
+    const { role, email } = request.params;
+    const rowKey = makeRowKey(email);
+    const success = await deleteEntity(USERS_TABLE, role, rowKey);
+    if (!success) return jsonResponse(404, { error: 'User not found' });
+    return jsonResponse(204, null);
+  },
+});
